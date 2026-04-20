@@ -58,7 +58,7 @@ dashboard_v3/
 │   │   │   └── SidePanel.tsx
 │   │   ├── charts/
 │   │   │   ├── CandleChart.tsx    # K線主圖
-│   │   │   ├── VolumePane.tsx    # 成交量副圖
+│   │   │   ├── VolumePane.tsx     # 成交量副圖
 │   │   │   └── PriceLineLayer.tsx # NOW線/MA/RSI/警報
 │   │   ├── market/
 │   │   │   ├── PriceDisplay.tsx  # 報價顯示
@@ -95,37 +95,100 @@ dashboard_v3/
 
 ---
 
-## 四、功能實作順序
+## 四、功能實作順序（已修正）
 
-### Phase 1：MVP（等同目前 dashboard_v2 功能）
-1. ✅ 專案初始化（Vite + SolidJS + Zustand）
-2. ✅ 三市場 Tab 切換
-3. ✅ K線圖（lightweight-charts）
-4. ✅ 成交量副圖
-5. ✅ 符號選擇 + TF 按鈕
-6. ✅ 即時報價顯示
-7. ✅ 策略排行 + Modal
-8. ✅ 倒數計時器
-9. ✅ 情緒晶片
-10. ✅ Memory Cache
+每個 Phase 的任務必須依賴上一層完成才能開始。
 
-### Phase 2：即時更新 + 指標
-1. MA5 / MA20 / MA60 疊加
-2. RSI14 獨立 pane
-3. NOW 價格線（隨報價跳動）
-4. Binance WebSocket 即時更新
-5. 價格警報（localStorage）
+---
 
-### Phase 3：進階功能
-1. MACD + Bollinger Bands
-2. 繪圖工具（Horizontal Line）
-3. Screener
-4. Watchlist
+### Phase 1-0：專案初始化 ✅
+- [x] Vite + SolidJS + Zustand 設定
+- [x] lightweight-charts npm 安裝
+- [x] Tailwind CSS 設定
+- [x] TypeScript 設定
 
-### Phase 4：Backtest
-1. Python Backtest Engine
-2. Equity Curve 展示
-3. Trade Log
+---
+
+### Phase 1-1：資料層（Data Layer）🔜
+> 沒有乾淨的資料層，上層全部無法運作
+
+**驗收標準：**
+- [ ] 一個乾淨的 API service，沒有任何 `window.fetch` 或直接 `fetch()` 散落各處
+- [ ] marketStore 有完整的市場/符號/TF 狀態
+- [ ] chartStore 可以 fetch 並快取 K線資料
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 1-2：圖表層（Chart Infrastructure）
+> 依賴 Phase 1-1 的資料層
+
+**驗收標準：**
+- [ ] BTCUSDT 1D K線正確顯示
+- [ ] 成交量副圖同步顯示
+- [ ] TF 切換時 K線跟著換
+- [ ] Symbol 切換時 K線跟著換
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 1-3：報價層（Quote Layer）
+> 依賴 Phase 1-1 的 API
+
+**驗收標準：**
+- [ ] 報價每 60 秒自動更新
+- [ ] 倒數計時器正常倒數
+- [ ] 顏色根據漲跌正確顯示
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 1-4：策略層（Strategy Layer）
+> 依賴 Phase 1-1 的 API
+
+**驗收標準：**
+- [ ] 策略排行正確顯示
+- [ ] 排序切換正常
+- [ ] Modal 正確開啟/關閉
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 1-5：情緒層（Sentiment Layer）
+> 依賴 Phase 1-3 的 Quote
+
+**驗收標準：**
+- [ ] 8 個晶片正確顯示
+- [ ] 切換市場時正確重算
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 2-1：指標系統（Indicators）
+> 依賴 Phase 1-1（資料）+ Phase 1-2（圖表）完成
+
+**驗收標準：**
+- [ ] BTCUSDT 1D：MA 三條線在 K線上
+- [ ] RSI pane 在 K線下方
+- [ ] TF 切換時指 標重新計算
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
+
+---
+
+### Phase 2-2：即時更新（Real-time）
+> 依賴 Phase 1-3 的 Quote
+
+**驗收標準：**
+- [ ] Binance WebSocket 毫秒級更新
+- [ ] 斷線時自動 fallback HTTP polling
+- [ ] Console 無 Error
+- [ ] 代碼有 Review 報告
 
 ---
 
@@ -136,11 +199,11 @@ dashboard_v3/
 ```
 1. Agent-實作者（implementer）
    → 實作功能、寫測試、提交 PR
-   
+
 2. Agent-測試者（tester）
    → 實際開瀏覽器操作、點擊按鈕、觀察 K線
    → 驗證功能是否正確運作
-   
+
 3. Agent-審查者（reviewer）
    → 審視程式碼：安全性、效能、可維護性
    → 產出審查報告
@@ -154,27 +217,143 @@ dashboard_v3/
 
 ---
 
-## 六、第一個要實作的功能：MA5/20/60 + RSI 指標系統
+## 六、第一個要實作的功能：Phase 1-1 資料層
 
-### 為什麼是第一個
-- chart_v2 的 Modal 裡已經有 MA/RSI 的 UI 按鈕，只是底層沒實作
-- 低垂的果實，回報率高
+### 為什麼第一個是資料層
+軟體工程基本原則：**先有乾淨的資料層，上層才能正確運作。**
+圖表層、報價層、策略層全部依賴 API fetch，沒有乾淨的 api.ts 和 store，其他全部無法正常運作。
 
-### 實作目標
+### 實作任務清單
+
+#### 任務 1：統一 API Service（`src/services/api.ts`）
+
+建立乾淨的 API 層，封裝所有 server.py 端點呼叫。
+
+**必須實作以下 function：**
+```typescript
+// CRYPTO
+fetchCryptoSymbols(): Promise<{ symbol: string; display: string }[]>
+fetchCryptoKlines(symbol: string, interval: string): Promise<OHLCV[]>
+fetchCryptoQuote(symbol: string): Promise<Quote>
+
+// TWSE
+fetchTWSESymbols(): Promise<{ code: string; name: string }[]>
+fetchTWSEKlines(code: string, interval: string): Promise<OHLCV[]>
+fetchTWSEQuote(code: string): Promise<TWSEquote>
+
+// US
+fetchUSSymbols(): Promise<{ symbol: string; name: string }[]>
+fetchUSKlines(symbol: string, interval: string): Promise<OHLCV[]>
+fetchUSQuote(symbol: string): Promise<USquote>
+
+// STRATEGIES
+fetchStrategies(): Promise<Strategy[]>
 ```
-1. K線圖上可以疊加 MA5（紅）、MA20（黃）、MA60（紫）三條線
-2. RSI14 在獨立 pane 顯示（下方）
-3. 切換 TF 時指 標跟著重新計算
-4. 切換市場時指 標正確清除
-5. 疊加/隱藏可以個別控制
+
+**統一格式（OHLCV）：**
+```typescript
+interface OHLCV {
+  time: number;   // Unix timestamp (秒)
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
 ```
 
-### 驗收標準
-- [ ] BTCUSDT 1D：MA5/20/60 三條線都在 K線上
-- [ ] RSI pane 在 K線下方，高度約 150px
-- [ ] 切換到 TWSE 市場，指標正確清除
+**Server API Base：** `http://localhost:5006`
+
+**注意：**
+- Server.py 的 `/api/crypto/klines` 的 response 格式是 `raw.data`，需要 normalize
+- TWSE 和 US 的 klines endpoint 不同，要區分
+- 所有 fetch 都要有 error handling（try/catch）
+- 60秒快取由 `cache.ts` 處理，api.ts 只做 fetch
+
+**commit message：** `feat: data layer - unified api service`
+
+---
+
+#### 任務 2：Cache Service（`src/services/cache.ts`）
+
+從 v2 的 chart_market.js cache 邏輯移植而來，簡化為通用版本。
+
+```typescript
+class CacheService {
+  private cache = new Map<string, { data: any; timestamp: number }>();
+  private maxAge = 60000; // 60秒
+
+  get(key: string): any | null;
+  set(key: string, data: any): void;
+  invalidate(key: string): void;  // key='*' 全部清除
+  invalidatePattern(prefix: string): void;  // 'CRYPTO|' + symbol 全部清除
+}
+export const cache = new CacheService();
+```
+
+**commit message：** `feat: data layer - cache service`
+
+---
+
+#### 任務 3：Market Store（`src/stores/marketStore.ts`）
+
+```typescript
+interface MarketState {
+  market: 'CRYPTO' | 'TWSE' | 'US';
+  symbol: string;
+  interval: string;
+  symbols: { symbol: string; display: string; name?: string }[];
+  isLoadingSymbols: boolean;
+  setMarket: (m: MarketState['market']) => void;
+  setSymbol: (s: string) => void;
+  setInterval: (i: string) => void;
+  fetchSymbols: () => Promise<void>;
+}
+```
+
+**commit message：** `feat: data layer - market store`
+
+---
+
+#### 任務 4：Chart Store（`src/stores/chartStore.ts`）
+
+```typescript
+interface ChartState {
+  data: OHLCV[];
+  isLoading: boolean;
+  error: string | null;
+  lastFetched: number | null;  // timestamp
+  fetchKlines: (market: string, symbol: string, interval: string) => Promise<void>;
+  invalidateCache: () => void;
+}
+```
+
+**注意：**
+- 使用 `api.ts` 的 fetch functions，不直接 fetch
+- 60秒 cache 有效期（`Date.now() - lastFetched < 60000`）
+- `invalidateCache()` 由外部觸發（如倒數歸零）
+
+**commit message：** `feat: data layer - chart store`
+
+---
+
+#### 測試驗收清單（Agent-測試者）
+- [ ] `fetchCryptoKlines('BTCUSDT', '1d')` 回傳 non-empty array
+- [ ] `fetchTWSEKlines('2330', '1wk')` 回傳 non-empty array
+- [ ] `fetchUSKlines('AAPL', '1mo')` 回傳 non-empty array
+- [ ] `marketStore.setMarket('TWSE')` 後 symbols 變成 TWSE 列表
+- [ ] 60秒內重複 fetch 回傳 cache 的資料（不發請求）
+- [ ] `cache.invalidate('*')` 後下次 fetch 真正發請求
 - [ ] Console 無 Error
-- [ ] 代碼有 Review 報告
+
+---
+
+#### 審查重點（Agent-審查者）
+- [ ] 所有 API 都有 error handling
+- [ ] cache 邏輯正確（有效期限、key 命名）
+- [ ] TypeScript types 完整（無 `any`）
+- [ ] 命名清晰（api.ts 的 function names）
+- [ ] 沒有 `window.fetch` 或 直接 `fetch()` 散落
 
 ---
 
