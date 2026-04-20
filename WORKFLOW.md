@@ -46,6 +46,17 @@ Architect（分配任務）
 
 Luka 是 Architect 的觸發信號。每個任務完成後，Luka 負責通知 Architect。
 
+### UI Designer 觸發機制
+
+```
+Architect 判斷需要 UI 規格
+  → Architect 先分配任務給 UI Designer
+  → UI Designer 完成後通知 Luka
+  → Luka 通知 Frontend 開始實作（此時 UI 規格已就緒）
+```
+
+Frontend 收到任務時，UI 規格已經完成，不需要自己等設計師。
+
 ---
 
 ### 第一關：實作者
@@ -54,11 +65,12 @@ Luka 是 Architect 的觸發信號。每個任務完成後，Luka 負責通知 A
 1. 讀取 `MASTER_PLAN.md` 確認任務目標
 2. 讀取 `agents/[ROLE].md` 確認職責規範
 3. 讀取 `API_CONTRACT.md` 確認 API 介面
-4. **UI Designer 先完成視覺規格**（如涉及 UI 元件）
-5. 嚴格遵守技術選型，不擅自改框架
-6. `npx tsc --noEmit`（前端）或自測（後端）確認無錯誤
-7. Commit 並 push
-8. 通知 Luka 完成
+4. 嚴格遵守技術選型，不擅自改框架
+5. `npx tsc --noEmit`（前端）或自測（後端）確認無錯誤
+6. Commit 並 push
+7. 通知 Luka 完成
+
+**如果任務涉及 UI：** Frontend 會在收到任務前就已經有 UI 規格（因為 UI Designer 在前置關卡已完成）。
 
 ### 第二關：QA Tester + QA Reviewer（並行）
 

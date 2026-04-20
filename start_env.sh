@@ -2,6 +2,9 @@
 # Dashboard V3 環境啟動腳本
 # 使用方式：./start_env.sh
 # 會在背景啟動所有需要的服務
+#
+# ⚠️  過渡階段：目前後端指向 V2 的 server.py（B1-1 完成後，改為指向 V3 的新後端）
+# V3 的 backend code 將在任務 B1-1 中建立。
 
 set -e
 

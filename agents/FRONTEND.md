@@ -80,6 +80,7 @@ const [store, setStore] = createStore<MyStore>({ ... });
 - 不要引入 `MASTER_PLAN.md` 外的技術框架
 - 不要刪除別人已經實作的檔案
 - 不要 commit `tsc --noEmit` 有錯誤的程式碼
+- **嚴禁將 lightweight-charts 的 chart 或 series 實體存入 Zustand store 或 Solid Signal 中**，必須以 local variable 或 `ref` 獨立管理（會觸發無窮迴圈或效能災難）
 
 ---
 
