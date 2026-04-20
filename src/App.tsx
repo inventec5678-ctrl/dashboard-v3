@@ -1,18 +1,20 @@
 import type { Component } from 'solid-js';
-import { onMount } from 'solid-js';
+import { onMount, Show } from 'solid-js';
 import { store as marketStore } from './stores/marketStore';
 import { store as chartStore } from './stores/chartStore';
+import { quoteStore } from './stores/quoteStore';
 import CandleChart from './components/CandleChart';
 import VolumePane from './components/VolumePane';
 import TFSwitcher from './components/TFSwitcher';
 import SymbolPicker from './components/SymbolPicker';
-import PriceDisplay from './components/PriceDisplay';
+import TopBar from './components/TopBar';
+import TabBar from './components/TabBar';
 
 const App: Component = () => {
   onMount(() => {
-    // Load initial data
     marketStore.loadSymbols().then(() => {
       chartStore.fetchKlines();
+      quoteStore.fetchQuote();
     });
   });
 
@@ -24,47 +26,44 @@ const App: Component = () => {
       'min-height': '100vh',
       'font-family': 'system-ui, sans-serif',
     }}>
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        'justify-content': 'space-between',
-        'align-items': 'center',
-        'margin-bottom': '16px',
-        'flex-wrap': 'wrap',
-        gap: '12px',
-      }}>
-        <h1 style={{ margin: 0, 'font-size': '20px' }}>Dashboard V3</h1>
-        <PriceDisplay />
-      </div>
+      <h1 style={{ margin: '0 0 12px', 'font-size': '20px' }}>Dashboard V3</h1>
 
-      {/* Symbol + TF controls */}
-      <div style={{ 'margin-bottom': '12px' }}>
+      <TabBar />
+
+      <TopBar />
+
+      {/* Chart tab */}
+      <div>
         <SymbolPicker />
         <TFSwitcher />
-      </div>
 
-      {/* Loading state */}
-      {chartStore.isLoading && (
-        <div style={{ color: '#6366f1', padding: '8px' }}>Loading...</div>
-      )}
+        <Show when={chartStore.isLoading}>
+          <div style={{ color: '#6366f1', padding: '8px' }}>載入中...</div>
+        </Show>
 
-      {/* Error state */}
-      {chartStore.error && (
-        <div style={{ color: '#ef5350', padding: '8px' }}>Error: {chartStore.error}</div>
-      )}
+        <Show when={chartStore.error}>
+          <div style={{ color: '#ef5350', padding: '8px' }}>錯誤：{chartStore.error}</div>
+        </Show>
 
-      {/* Charts */}
-      {!chartStore.isLoading && chartStore.data.length > 0 && (
-        <>
+        <Show when={!chartStore.isLoading && chartStore.data.length > 0}>
           <CandleChart />
           <VolumePane />
-        </>
-      )}
+        </Show>
 
-      {/* Empty state */}
-      {!chartStore.isLoading && chartStore.data.length === 0 && !chartStore.error && (
-        <div style={{ color: '#666', padding: '8px' }}>No data</div>
-      )}
+        <Show when={!chartStore.isLoading && chartStore.data.length === 0 && !chartStore.error}>
+          <div style={{ color: '#666', padding: '8px' }}>無資料</div>
+        </Show>
+      </div>
+
+      {/* Strategy tab placeholder */}
+      <Show when={false}>
+        <div>策略功能建設中...</div>
+      </Show>
+
+      {/* Settings tab placeholder */}
+      <Show when={false}>
+        <div>設定功能建設中...</div>
+      </Show>
     </div>
   );
 };
