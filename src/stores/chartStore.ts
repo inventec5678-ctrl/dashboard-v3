@@ -12,12 +12,15 @@ interface ChartStore {
   invalidate: () => void;
 }
 
+let _requestId = 0;
+
 const [store, setStore] = createStore<ChartStore>({
   data: [],
   isLoading: false,
   error: null,
   async fetchKlines() {
     const { market, symbol, interval } = marketStore;
+    const myRequestId = ++_requestId;
     setStore({ isLoading: true, error: null });
     try {
       const fetchers = {
@@ -26,10 +29,14 @@ const [store, setStore] = createStore<ChartStore>({
         US: fetchUSKlines,
       };
       const data = await fetchers[market](symbol, interval);
+      // Ignore stale responses (if a newer request has been sent)
+      if (myRequestId !== _requestId) return;
       setStore('data', data);
     } catch (e: any) {
+      if (myRequestId !== _requestId) return;
       setStore('error', e.message);
     } finally {
+      if (myRequestId !== _requestId) return;
       setStore('isLoading', false);
     }
   },

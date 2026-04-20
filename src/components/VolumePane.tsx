@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { createEffect } from 'solid-js';
+import { onMount, onCleanup, createEffect } from 'solid-js';
 import { createChart, IChartApi, ISeriesApi, HistogramData, Time } from 'lightweight-charts';
 import { store as chartStore } from '../stores/chartStore';
 
@@ -8,7 +8,7 @@ const VolumePane: Component = () => {
   let chart: IChartApi;
   let series: ISeriesApi<'Histogram'>;
 
-  const initChart = () => {
+  onMount(() => {
     chart = createChart(containerRef, {
       layout: {
         background: { color: '#1a1a2e' },
@@ -33,7 +33,20 @@ const VolumePane: Component = () => {
     series.priceScale().applyOptions({
       scaleMargins: { top: 0.8, bottom: 0 },
     });
-  };
+
+    // Handle resize
+    const resizeObserver = new ResizeObserver(() => {
+      if (containerRef && chart) {
+        chart.applyOptions({ width: containerRef.clientWidth, height: 80 });
+      }
+    });
+    resizeObserver.observe(containerRef);
+
+    onCleanup(() => {
+      resizeObserver.disconnect();
+      chart.remove();
+    });
+  });
 
   createEffect(() => {
     const data = chartStore.data;
@@ -45,13 +58,6 @@ const VolumePane: Component = () => {
     }));
     series.setData(formatted);
   });
-
-  // Resize handled by parent, but set initial size
-  if (typeof window !== 'undefined') {
-    setTimeout(() => {
-      if (containerRef && chart) chart.applyOptions({ width: containerRef.clientWidth });
-    }, 100);
-  }
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '80px', background: '#1a1a2e' }} />
