@@ -106,6 +106,12 @@ Luka 收到實作者完成通知後，**同時啟動** QA Tester 和 QA Reviewer
 
 **並行通過條件：** Tester PASS + Reviewer Approve，兩者同時滿足才算過關。
 
+**Frontend QA 前置確認（重要）：**
+- Frontend 進 QA 前，Luka 先確認 B1-1 是否已完成
+- 如果 B1-1 尚未完成，Frontend QA 必須等到 B1-1 完成後才能開始
+- 原因：`start_env.sh` 會根據 V3 目錄是否有 `server.py` 來決定用哪個後端
+- 如果 B1-1 沒完成就測，啟動的是 V2 後端（不符合 V3 API Contract）
+
 ### Luka 處理結果
 
 - **兩者都通過**：派下一個任務

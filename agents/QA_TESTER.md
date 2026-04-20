@@ -20,6 +20,7 @@
 2. **使用 `start_env.sh` 啟動所有服務** — 背景啟動，不阻塞測試
 3. **部署驗證是必須的** — 確認 API 走相對路徑，不走 localhost
 4. **不放過任何小問題** — 小問題可能造成大問題
+5. **必須產生可重複執行的測試檔** — 寫 Playwright 腳本，不是文字模擬
 
 ---
 
@@ -33,7 +34,10 @@
    cd /Users/changrunlin/.openclaw/workspace/dashboard_v3 && ./start_env.sh
    ```
    `start_env.sh` 會在背景啟動 server.py（port 5006）和 Vite（port 5173），自動等待就緒
-2. **Playwright 開瀏覽器**，實際操作
+2. **撰寫 Playwright 測試腳本**：
+   - 存放位置：`tests/e2e/[功能代號].spec.ts`（例：`tests/e2e/F1-1.spec.ts`）
+   - 使用 `npx playwright test` 執行
+   - 不要試圖用文字模擬操作，必須產生可執行的測試檔
 3. 檢查清單：
    - [ ] 頁面正常載入（不白屏）
    - [ ] H1 顯示 "Dashboard V3"
@@ -54,6 +58,13 @@
    - 確認 `http://localhost:5173/api/symbols/crypto` 能正常回應（不走 localhost direct）
    - 如果有 localhost direct 請求 → FAIL
 
+### 環境尚未就緒時
+
+如果 `/api/symbols/crypto` 回傳 404 或空陣列：
+- 這是「環境尚未準備好」，不是「程式碼壞了」
+- 回報 Luka：「環境無資料（B1-1 可能尚未完成），請確認後端狀態」
+- 不要直接 FAIL
+
 ### 報告格式
 
 ```
@@ -66,8 +77,11 @@
 - API URL：✅ 使用相對路徑 / ❌ 有 localhost 直接請求
 - Vite Proxy：✅ 正常 / ❌ 失效
 
+### 測試檔
+- 位置：`tests/e2e/[代號].spec.ts`
+
 ### 結論
-- 結果：PASS / FAIL
+- 結果：PASS / FAIL / 環境未就緒
 - 問題列表：[如有問題，列出]
 ```
 
@@ -78,9 +92,10 @@
 - 不要修改任何程式碼（只讀取和測試）
 - 不要忽略看起來小的問題
 - 發現問題要具體描述
+- 測試檔必須是可重複執行的 `*.spec.ts`，不是文字描述
 
 ---
 
 ## 當完成時
 
-通知 Luka 測試結果，並附上：PASS / FAIL、有無問題。
+通知 Luka 測試結果，並附上：PASS / FAIL / 環境未就緒、有無問題、測試檔位置。
