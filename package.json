@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@playwright/test": "^1.59.1",
+    "lightweight-charts": "^4.2.3",
     "playwright": "^1.59.1",
     "solid-js": "^1.9.0"
   },
