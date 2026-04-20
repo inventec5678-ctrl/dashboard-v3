@@ -50,7 +50,7 @@ const ConsensusBar: Component = () => {
             width: `${Math.abs(selected()!.signals.overall) / 2}%`,
             background: barColor(selected()!.signals.overall + 50),
             transition: 'width 0.3s',
-            transform: selected()!.signals.overall < 0 ? 'translateX(-100%)' : 'none',
+            transform: selected()!.signals.overall >= 0 ? 'translateX(-100%)' : 'none',
           }} />
         )}
       </div>
