@@ -1,7 +1,7 @@
 import type { OHLCV, Quote, Symbol } from '../types';
 import { cacheGet, cacheSet } from './cache';
 
-const BASE = 'http://localhost:5006';
+const BASE = '';  // Use relative URL so Vite proxy handles /api → localhost:5006
 
 // 工具函式
 async function apiFetch<T>(url: string, cacheKey?: string, ttl = 60000): Promise<T> {
