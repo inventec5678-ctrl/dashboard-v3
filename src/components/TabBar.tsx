@@ -1,11 +1,14 @@
 import type { Component } from 'solid-js';
-import { createSignal } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
-type Tab = 'chart' | 'strategy' | 'settings';
+export type Tab = 'chart' | 'strategy' | 'settings';
 
-const TabBar: Component = () => {
-  const [active, setActive] = createSignal<Tab>('chart');
+interface TabBarProps {
+  active: Accessor<Tab>;
+  onTabChange: (tab: Tab) => void;
+}
 
+const TabBar: Component<TabBarProps> = (props) => {
   const tabs: { id: Tab; label: string }[] = [
     { id: 'chart', label: '走勢' },
     { id: 'strategy', label: '策略' },
@@ -21,16 +24,16 @@ const TabBar: Component = () => {
     }}>
       {tabs.map(tab => (
         <button
-          onClick={() => setActive(tab.id)}
+          onClick={() => props.onTabChange(tab.id)}
           style={{
             padding: '8px 16px',
             background: 'transparent',
-            color: active() === tab.id ? '#6366f1' : '#666',
+            color: props.active() === tab.id ? '#6366f1' : '#666',
             border: 'none',
-            'border-bottom': active() === tab.id ? '2px solid #6366f1' : '2px solid transparent',
+            'border-bottom': props.active() === tab.id ? '2px solid #6366f1' : '2px solid transparent',
             cursor: 'pointer',
             'font-size': '14px',
-            'font-weight': active() === tab.id ? 'bold' : 'normal',
+            'font-weight': props.active() === tab.id ? 'bold' : 'normal',
             'margin-bottom': '-1px',
           }}
         >
