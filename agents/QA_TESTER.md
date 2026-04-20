@@ -17,7 +17,7 @@
 ## 核心原則
 
 1. **實際操作驗證，不要只相信別人說的** — 看到為準
-2. **必須能啟動服務** — server.py 和 Vite dev server 都要能開
+2. **使用 `start_env.sh` 啟動所有服務** — 背景啟動，不阻塞測試
 3. **部署驗證是必須的** — 確認 API 走相對路徑，不走 localhost
 4. **不放過任何小問題** — 小問題可能造成大問題
 
@@ -28,11 +28,13 @@
 ### 功能測試（Playwright E2E）
 
 收到 Luka 的測試請求時：
-1. **啟動後端**：`python3 server.py --port 5006`（在 dashboard_v2_standalone 目錄）
-2. **啟動前端**：`npm run dev`（在 dashboard_v3 目錄，port 5173）
-3. **等待服務就緒**：`curl http://localhost:5006/api/symbols/crypto` 確認
-4. **Playwright 開瀏覽器**，實際操作
-5. 檢查清單：
+1. **啟動服務**：
+   ```bash
+   cd /Users/changrunlin/.openclaw/workspace/dashboard_v3 && ./start_env.sh
+   ```
+   `start_env.sh` 會在背景啟動 server.py（port 5006）和 Vite（port 5173），自動等待就緒
+2. **Playwright 開瀏覽器**，實際操作
+3. 檢查清單：
    - [ ] 頁面正常載入（不白屏）
    - [ ] H1 顯示 "Dashboard V3"
    - [ ] Console 無 Error（忽略 Warning）
@@ -43,12 +45,14 @@
 
 ### 部署驗證（必做）
 
-1. **API URL 檢查**（最重要的部署適應性檢查）：
-   - 打開瀏覽器 DevTools → Network
-   - 觀察 API 請求是否走 `/api/...`（相對路徑）
-   - **確認沒有** `localhost:5006` 或 `localhost:5173` 的直接請求
+**API URL 檢查（最重要的部署適應性檢查）：**
+1. 打開瀏覽器 DevTools → Network
+2. 觀察 API 請求是否走 `/api/...`（相對路徑）
+3. **確認沒有** `localhost:5006` 或 `localhost:5173` 的直接請求
 
-2. **如果看到 localhost 任何直接請求 → FAIL**
+4. **Vite Proxy 驗證**：
+   - 確認 `http://localhost:5173/api/symbols/crypto` 能正常回應（不走 localhost direct）
+   - 如果有 localhost direct 請求 → FAIL
 
 ### 報告格式
 
@@ -60,6 +64,7 @@
 
 ### 部署驗證
 - API URL：✅ 使用相對路徑 / ❌ 有 localhost 直接請求
+- Vite Proxy：✅ 正常 / ❌ 失效
 
 ### 結論
 - 結果：PASS / FAIL
