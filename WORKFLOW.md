@@ -79,8 +79,21 @@ Architect（分配任務）→ [實作者] → [QA Tester] → [QA Reviewer] →
 ### Luka 處理結果
 
 - **Approve**：派下一個任務
-- **Request Changes**：Luka 親修或派原 Agent 修，然後重新觸發第三關
-- **Reject**：派新 Agent 重寫
+- **Request Changes → 退件流程（見下方）**
+
+### 退件流程（Gino 說「需修改」時）
+
+```
+Gino 說「需修改」→ Luka 通知 Architect → Architect 分析原因 →
+Architect 重新分派給原實作者（Frontend 或 Backend）→ 原實作者修復 →
+重新觸發第一關（commit/push）→ QA Tester → QA Reviewer → Luka 通知 Gino
+```
+
+**嚴格規定：**
+- 所有 Bug 由實作者修復（Luka 不親修）
+- 修復後必須**重跑完整的 QA 流程**（Tester → Reviewer），不能跳關
+- Architect 負責分析原因並確認修復方向正確
+- Luka 監控流程，確保每個環節都有執行
 
 ### Gino 核准
 

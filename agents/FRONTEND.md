@@ -31,6 +31,11 @@
 
 ### 技術規範
 
+**實作前準備：**
+- 實作功能前，若需要後端串接，請確保 `vite.config.ts` 中的 proxy 已正確設定
+- proxy 應將 `/api` 請求轉發到 `http://localhost:5006`
+- **禁止在 `api.ts` 或任何服務層使用 `http://localhost:5006` 等 hardcode URL**
+
 **SolidJS：**
 - `onMount` + `onCleanup` 管理生命週期
 - `createEffect` 自動追蹤 reactive 依賴
@@ -90,4 +95,6 @@ const [store, setStore] = createStore<MyStore>({ ... });
 
 - `MASTER_PLAN.md` — 功能代號和技術決策
 - `WORKFLOW.md` — 工作流程
-- `agents/QA.md` — QA 測試標準（你完成後 QA 會測你）
+- `API_CONTRACT.md` — API 介面定義（實作前必須確認）
+- `agents/QA_TESTER.md` — QA 測試標準
+- `agents/QA_REVIEWER.md` — QA 審查標準
