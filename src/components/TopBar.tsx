@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { onMount } from 'solid-js';
+import { onMount, createEffect } from 'solid-js';
 import { store as marketStore } from '../stores/marketStore';
 import { quoteStore } from '../stores/quoteStore';
 import UpdateBadge from './UpdateBadge';
@@ -7,6 +7,14 @@ import CountdownTimer from './CountdownTimer';
 
 const TopBar: Component = () => {
   onMount(() => {
+    quoteStore.fetchQuote();
+  });
+
+  // Auto-fetch quote when market or symbol changes
+  createEffect(() => {
+    // Track both market and symbol
+    const _market = marketStore.market;
+    const _symbol = marketStore.symbol;
     quoteStore.fetchQuote();
   });
 
