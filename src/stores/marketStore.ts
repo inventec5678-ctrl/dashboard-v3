@@ -1,6 +1,7 @@
 import { createStore } from 'solid-js/store';
 import type { Market, Timeframe, Symbol } from '../types';
 import { fetchCryptoSymbols, fetchTWSESymbols, fetchUSSymbols } from '../services/api';
+import { cacheInvalidatePattern } from '../services/cache';
 
 interface MarketStore {
   market: Market;
@@ -25,9 +26,17 @@ const [store, setStore] = createStore<MarketStore>({
   setMarket(m) {
     setStore('market', m);
     setStore('symbol', defaults[m]);
+    // Invalidate all cache for the old market (handled in setSymbol via prefix)
+    cacheInvalidatePattern('CRYPTO|');
+    cacheInvalidatePattern('TWSE|');
+    cacheInvalidatePattern('US|');
     this.loadSymbols();
   },
-  setSymbol(s) { setStore('symbol', s); },
+  setSymbol(s) {
+    // Invalidate all cache for current market+symbol when symbol changes
+    cacheInvalidatePattern(`${store.market}|${store.symbol}|`);
+    setStore('symbol', s);
+  },
   setInterval(i) { setStore('interval', i); },
   async loadSymbols() {
     setStore('isLoading', true);

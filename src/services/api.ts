@@ -43,7 +43,7 @@ export async function fetchTWSESymbols(): Promise<Symbol[]> {
   const data = await apiFetch<{ data: { code: string; name: string }[] }>(
     `${BASE}/api/symbols/twse`
   );
-  return (data.data || []).map((s: { code: string; name: string }) => ({ symbol: s.code, display: s.code, name: s.name }));
+  return (data.data || []).map((s: { code: string; name: string }) => ({ symbol: s.code, display: s.name || s.code, name: s.name }));
 }
 
 export async function fetchTWSEKlines(code: string, interval: string, limit = 300): Promise<OHLCV[]> {
